@@ -40,7 +40,8 @@ app.use(cors({
   credentials: true,
 }));
 // Respond to preflight requests for all routes
-app.options('*', cors());
+// Use '/*' for OPTIONS so path-to-regexp doesn't choke on a bare '*'
+app.options('/*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
