@@ -21,6 +21,7 @@ const parseOrigins = (value) => (
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'https://taskmate-pro.web.app',
   ...parseOrigins(process.env.CLIENT_URL),
   ...parseOrigins(process.env.CORS_ORIGINS)
 ];
@@ -32,11 +33,14 @@ app.use(cors({
       return callback(null, true);
     }
 
+    console.warn(`CORS blocked request from origin: ${origin}`);
     return callback(new Error(`CORS blocked request from origin: ${origin}`));
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   credentials: true,
 }));
+// Respond to preflight requests for all routes
+app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
