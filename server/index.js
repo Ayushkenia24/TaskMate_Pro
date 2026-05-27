@@ -36,12 +36,12 @@ app.use(cors({
     console.warn(`CORS blocked request from origin: ${origin}`);
     return callback(new Error(`CORS blocked request from origin: ${origin}`));
   },
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true,
+  optionsSuccessStatus: 204,
 }));
-// Respond to preflight requests for all routes
-// Use '/*' for OPTIONS so path-to-regexp doesn't choke on a bare '*'
-app.options('/*', cors());
+// Ensure OPTIONS is accepted and cors handles preflight automatically
+// Remove explicit app.options route which caused path-to-regexp parse errors
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
