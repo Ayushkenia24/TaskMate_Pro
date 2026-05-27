@@ -106,6 +106,20 @@ Expected success response:
 
 If it returns `DB_CONFIG_MISSING`, add the missing database variables in Render. If it returns another code such as `ENOTFOUND`, `ECONNREFUSED`, or `ER_ACCESS_DENIED_ERROR`, check the database host, port, username, password, database name, SSL setting, and external network access.
 
+Then check that the required tables exist:
+
+```text
+https://your-render-backend.onrender.com/api/health/schema
+```
+
+Expected success response:
+
+```json
+{"success":true,"message":"Database schema is ready"}
+```
+
+The server also runs this schema check on startup and creates the required tables if they do not exist.
+
 ## Database setup for production
 
 Create a MySQL database with any hosted MySQL provider, then create the tables using one of these methods:

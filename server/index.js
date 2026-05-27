@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const db = require('./config/db');
+const { ensureDatabaseSchema } = require('./config/schema');
 const { startAllSchedulers } = require('./services/taskScheduler');
 
 const app = express();
@@ -74,6 +75,19 @@ app.get('/api/health/db', async (req, res) => {
   });
 });
 
+app.get('/api/health/schema', async (req, res) => {
+  const schema = await ensureDatabaseSchema();
+  const status = schema.success ? 200 : 503;
+
+  res.status(status).json({
+    success: schema.success,
+    message: schema.success ? schema.message : 'Database schema check failed',
+    code: schema.success ? undefined : schema.code,
+    details: process.env.NODE_ENV === 'development' && !schema.success ? schema.message : undefined,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // 404 handler - catch all unmatched routes
 app.use((req, res) => {
   res.status(404).json({
@@ -98,7 +112,15 @@ app.listen(PORT, () => {
   console.log(`Port: ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 
-  startAllSchedulers();
+  ensureDatabaseSchema().then((schema) => {
+    if (!schema.success) {
+      console.error('[ERROR] Database schema check failed:', schema.code, schema.message);
+      return;
+    }
+
+    console.log('[OK] Database schema is ready.');
+    startAllSchedulers();
+  });
 });
 
 module.exports = app;

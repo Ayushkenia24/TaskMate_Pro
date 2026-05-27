@@ -6,7 +6,7 @@
     "start": "node index.js",
     "dev": "node --watch index.js",
     "build": "npm run check",
-    "check": "node --check index.js && node --check config/db.js && node --check config/twilio.js && node --check middleware/authMiddleware.js && node --check routes/authRoutes.js && node --check routes/taskRoutes.js && node --check routes/reportRoutes.js && node --check controllers/authController.js && node --check controllers/taskController.js && node --check controllers/reportController.js && node --check services/alertService.js && node --check services/taskScheduler.js && node --check setup-db.js && node --check debug-db.js",
+    "check": "node --check index.js && node --check config/db.js && node --check config/schema.js && node --check config/twilio.js && node --check middleware/authMiddleware.js && node --check routes/authRoutes.js && node --check routes/taskRoutes.js && node --check routes/reportRoutes.js && node --check controllers/authController.js && node --check controllers/taskController.js && node --check controllers/reportController.js && node --check services/alertService.js && node --check services/taskScheduler.js && node --check setup-db.js && node --check debug-db.js",
     "setup-db": "node setup-db.js"
   },
   "keywords": [],
