@@ -34,12 +34,12 @@ CREATE TABLE IF NOT EXISTS tasks (
     INDEX idx_task_time (task_date, task_time)
 );
 
--- Sample Data for Testing
-INSERT INTO users (name, email, phone, password) VALUES 
-('Demo User', 'demo@taskmate.com', '+1234567890', '$2a$10$YourHashedPasswordHere');
-
--- Sample tasks (with user_id = 1)
-INSERT INTO tasks (user_id, task_name, description, task_date, task_time, status) VALUES
-(1, 'Morning Workout', 'Hit the gym for 30 minutes', CURDATE(), '07:00:00', 'pending'),
-(1, 'Team Meeting', 'Discuss project roadmap', CURDATE(), '10:00:00', 'pending'),
-(1, 'Lunch Break', 'Enjoy a healthy meal', CURDATE(), '13:00:00', 'pending');
+-- End-of-day reminder delivery guard
+CREATE TABLE IF NOT EXISTS end_of_day_reminders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    reminder_date DATE NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_date (user_id, reminder_date)
+);

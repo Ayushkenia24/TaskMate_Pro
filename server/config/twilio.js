@@ -1,24 +1,34 @@
 const twilio = require('twilio');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
-// Initialize Twilio client
-const client = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+let cachedClient;
 
-// Function to send SMS alert
+const getTwilioClient = () => {
+  const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER } = process.env;
+
+  if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
+    throw new Error('Twilio credentials are missing. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER.');
+  }
+
+  if (!cachedClient) {
+    cachedClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+  }
+
+  return cachedClient;
+};
+
 const sendSMS = async (to, message) => {
   try {
-    const result = await client.messages.create({
+    const result = await getTwilioClient().messages.create({
       body: message,
       from: process.env.TWILIO_PHONE_NUMBER,
-      to: to
+      to
     });
-    console.log(`✅ SMS sent successfully to ${to}. SID: ${result.sid}`);
+
+    console.log(`[OK] SMS sent successfully to ${to}. SID: ${result.sid}`);
     return { success: true, sid: result.sid };
   } catch (error) {
-    console.error('❌ SMS sending failed:', error.message);
+    console.error('[ERROR] SMS sending failed:', error.message);
     return { success: false, error: error.message };
   }
 };

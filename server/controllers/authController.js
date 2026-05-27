@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 // Register new user
 const register = async (req, res) => {

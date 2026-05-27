@@ -1,9 +1,8 @@
 import axios from 'axios';
 
-// ✅ Use import.meta.env instead of process.env for Vite
+// Vite exposes client environment variables through import.meta.env.
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -11,7 +10,6 @@ const api = axios.create({
   },
 });
 
-// Add token to requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -23,14 +21,12 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Auth APIs
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
   getProfile: () => api.get('/auth/profile'),
 };
 
-// Task APIs
 export const taskAPI = {
   createTask: (data) => api.post('/tasks', data),
   getTasks: (date) => api.get(`/tasks${date ? `?date=${date}` : ''}`),
@@ -40,7 +36,6 @@ export const taskAPI = {
   deleteTask: (id) => api.delete(`/tasks/${id}`),
 };
 
-// Report APIs
 export const reportAPI = {
   getDailyReport: (date) => api.get(`/reports/daily/${date}`),
   getWeeklyReport: () => api.get('/reports/weekly'),

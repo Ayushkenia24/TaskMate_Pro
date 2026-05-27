@@ -3,22 +3,27 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "build": "npm run check",
+    "check": "node --check index.js && node --check config/db.js && node --check config/twilio.js && node --check middleware/authMiddleware.js && node --check routes/authRoutes.js && node --check routes/taskRoutes.js && node --check routes/reportRoutes.js && node --check controllers/authController.js && node --check controllers/taskController.js && node --check controllers/reportController.js && node --check services/alertService.js && node --check services/taskScheduler.js && node --check setup-db.js && node --check debug-db.js",
+    "setup-db": "node setup-db.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "firebase-tools": "^14.24.2",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.3",
     "node-cron": "^4.2.1",
     "twilio": "^5.10.5"
   },
-  "devDependencies": {},
   "description": ""
 }

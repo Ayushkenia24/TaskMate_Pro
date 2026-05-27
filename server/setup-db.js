@@ -1,27 +1,33 @@
 const mysql = require('mysql2/promise');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
+
+const requiredEnv = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
 
 async function setupDatabase() {
   let connection;
-  
+
   try {
-    // Connect to MySQL server (without database)
+    const missingEnv = requiredEnv.filter((key) => !process.env[key]);
+    if (missingEnv.length > 0) {
+      throw new Error(`Missing required environment variable(s): ${missingEnv.join(', ')}`);
+    }
+
     connection = await mysql.createConnection({
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD
+      password: process.env.DB_PASSWORD,
+      port: process.env.DB_PORT || 3306,
+      ssl: process.env.DB_SSL === 'false' ? undefined : { rejectUnauthorized: false }
     });
 
-    console.log('✅ Connected to MySQL server');
+    console.log('[OK] Connected to MySQL server.');
 
-    // Create database if not exists
-    await connection.query(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME}`);
-    console.log(`✅ Database '${process.env.DB_NAME}' created/verified`);
+    const databaseName = mysql.escapeId(process.env.DB_NAME);
+    await connection.query(`CREATE DATABASE IF NOT EXISTS ${databaseName}`);
+    console.log(`[OK] Database '${process.env.DB_NAME}' created/verified.`);
 
-    // Use the database
-    await connection.query(`USE ${process.env.DB_NAME}`);
+    await connection.query(`USE ${databaseName}`);
 
-    // Create users table
     await connection.query(`
       CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -32,9 +38,8 @@ async function setupDatabase() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
-    console.log('✅ Users table created');
+    console.log('[OK] Users table created/verified.');
 
-    // Create tasks table
     await connection.query(`
       CREATE TABLE IF NOT EXISTS tasks (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -57,9 +62,8 @@ async function setupDatabase() {
         INDEX idx_task_time (task_date, task_time)
       )
     `);
-    console.log('✅ Tasks table created');
+    console.log('[OK] Tasks table created/verified.');
 
-    // Create end_of_day_reminders table
     await connection.query(`
       CREATE TABLE IF NOT EXISTS end_of_day_reminders (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -70,20 +74,18 @@ async function setupDatabase() {
         UNIQUE KEY unique_user_date (user_id, reminder_date)
       )
     `);
-    console.log('✅ End-of-day reminders table created');
+    console.log('[OK] End-of-day reminders table created/verified.');
 
-    // Verify tables
     const [tables] = await connection.query('SHOW TABLES');
-    console.log('\n📋 Tables in database:');
-    tables.forEach(table => {
-      console.log(`   - ${Object.values(table)[0]}`);
+    console.log('\nTables in database:');
+    tables.forEach((table) => {
+      console.log(`- ${Object.values(table)[0]}`);
     });
 
-    console.log('\n✅ Database setup completed successfully!');
-    console.log('🚀 You can now start your server with: npm run dev\n');
-
+    console.log('\n[OK] Database setup completed successfully.');
+    console.log('Start the server with: npm start\n');
   } catch (error) {
-    console.error('❌ Database setup failed:', error.message);
+    console.error('[ERROR] Database setup failed:', error.message);
     process.exit(1);
   } finally {
     if (connection) {

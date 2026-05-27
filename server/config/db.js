@@ -1,7 +1,11 @@
 const mysql = require('mysql2');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
-// Create MySQL connection pool for better performance
+const sslConfig = process.env.DB_SSL === 'false'
+  ? undefined
+  : { rejectUnauthorized: false };
+
+// Create a MySQL connection pool for better performance.
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -11,21 +15,18 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: sslConfig
 });
 
-// Get promise-based connection
 const promisePool = pool.promise();
 
-// Test connection
 pool.getConnection((err, connection) => {
   if (err) {
-    console.error('❌ Database connection failed:', err.message);
+    console.error('[ERROR] Database connection failed:', err.message);
     return;
   }
-  console.log('✅ MySQL Database connected successfully!');
+
+  console.log('[OK] MySQL database connected successfully.');
   connection.release();
 });
 
