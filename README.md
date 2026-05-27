@@ -86,8 +86,25 @@ CLIENT_URL=https://your-frontend-domain.com
 ```
 
 Render provides the `PORT` variable automatically, so do not hard-code it.
+Do not expect `server/.env` to be available on Render; it is intentionally ignored by Git. Copy the values from your local `server/.env` into the Render service Environment tab.
 
 Note: Render free web services spin down after inactivity. That is fine for testing the API, but SMS reminder schedulers are only reliable while the server is awake. Use a paid instance or a separate always-on scheduler/worker for production reminders.
+
+### Troubleshooting database errors
+
+If login or signup returns `500`, open:
+
+```text
+https://your-render-backend.onrender.com/api/health/db
+```
+
+Expected success response:
+
+```json
+{"success":true,"message":"Database connection is healthy"}
+```
+
+If it returns `DB_CONFIG_MISSING`, add the missing database variables in Render. If it returns another code such as `ENOTFOUND`, `ECONNREFUSED`, or `ER_ACCESS_DENIED_ERROR`, check the database host, port, username, password, database name, SSL setting, and external network access.
 
 ## Database setup for production
 

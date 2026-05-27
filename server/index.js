@@ -5,6 +5,7 @@ require('dotenv').config({ quiet: true });
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const db = require('./config/db');
 const { startAllSchedulers } = require('./services/taskScheduler');
 
 const app = express();
@@ -56,6 +57,19 @@ app.get('/api/health', (req, res) => {
   res.json({
     success: true,
     message: 'TaskMate Pro API is running!',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/api/health/db', async (req, res) => {
+  const health = await db.getDatabaseHealth();
+  const status = health.success ? 200 : 503;
+
+  res.status(status).json({
+    success: health.success,
+    message: health.success ? health.message : 'Database connection failed',
+    code: health.success ? undefined : health.code,
+    details: process.env.NODE_ENV === 'development' && !health.success ? health.message : undefined,
     timestamp: new Date().toISOString()
   });
 });
